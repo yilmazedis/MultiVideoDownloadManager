@@ -19,34 +19,29 @@ class ProgressCell: UITableViewCell {
         downloadView.layer.masksToBounds = true
         downloadView.clipsToBounds = true
         downloadView.layer.cornerRadius = 5.0
-    }
-    
-    func configure(_ task: DownloadTask, at index: Int) {
-        titleLabel?.text = "\(task.state.description) #\(task.identifier)"
-        downloadView.image = UIImage.randomImage(seed: Int(task.identifier) ?? 0)
         
-        switch task.state {
-        case .pending:
-            progressBar.isHidden = true
-            subtitleLabel.isHidden = true
-            downloadView.isHidden = true
-            
-        case .inProgess(let complete):
-            progressBar.isHidden = false
-            progressBar.progress = Float(Double(complete)/100.0)
-            subtitleLabel.isHidden = false
-            subtitleLabel.text = "\(complete)%"
-            downloadView.isHidden = false
-            
-        case .completed:
-            progressBar.isHidden = true
-            subtitleLabel.isHidden = true
-            downloadView.isHidden = false
-            self.downloadView.image = UIImage(systemName: "photo.on.rectangle.angled")
-            downloadView.createVideoThumbnail(url: K.urls[index])
-        }
+        downloadView.image = UIImage(systemName: "icloud.and.arrow.down.fill")
     }
     
+    func configure(name: String) {
+        titleLabel?.text = name
+    }
+    
+    func updateProgressBar(at progress: Double) {
+        progressBar.isHidden = false
+        progressBar.progress = Float(progress)
+        subtitleLabel.isHidden = false
+        subtitleLabel.text = "\(String(format: "%.2f", progress * 100))%"
+        downloadView.isHidden = false
+    }
+    
+    func completeProgressBar(at index: Int) {
+        progressBar.isHidden = true
+        subtitleLabel.isHidden = true
+        downloadView.isHidden = false
+        downloadView.image = UIImage(systemName: "photo.on.rectangle.angled")
+        //downloadView.createVideoThumbnail(url: K.urls[index])
+    }
 }
 
 fileprivate extension UIImage {

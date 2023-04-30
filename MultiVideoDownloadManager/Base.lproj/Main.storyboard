@@ -2,7 +2,6 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="sdT-k2-322">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
-        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -11,7 +10,7 @@
         <!--GCD Group Tasks-->
         <scene sceneID="wKs-SN-bCO">
             <objects>
-                <viewController id="ge8-09-mcZ" customClass="JobListViewController" customModule="DispatchGroup" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="ge8-09-mcZ" customClass="JobListViewController" customModule="MultiVideoDownloadManager" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="mlz-uM-87g">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -34,7 +33,7 @@
                                                                 <nil key="textColor"/>
                                                                 <nil key="highlightedColor"/>
                                                             </label>
-                                                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="15" minValue="2" maxValue="20" translatesAutoresizingMaskIntoConstraints="NO" id="Vnx-80-PnM">
+                                                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="2" minValue="2" maxValue="20" translatesAutoresizingMaskIntoConstraints="NO" id="Vnx-80-PnM">
                                                                 <rect key="frame" x="65.5" y="0.0" width="98" height="31"/>
                                                                 <constraints>
                                                                     <constraint firstAttribute="width" constant="94" id="Mk9-1e-6e8"/>
@@ -96,7 +95,7 @@
                                         <rect key="frame" x="0.0" y="94" width="414" height="340"/>
                                         <color key="backgroundColor" systemColor="groupTableViewBackgroundColor"/>
                                         <prototypes>
-                                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="Cell" rowHeight="108" id="h7G-ef-KAN" customClass="ProgressCell" customModule="DispatchGroup" customModuleProvider="target">
+                                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="Cell" rowHeight="108" id="h7G-ef-KAN" customClass="ProgressCell" customModule="MultiVideoDownloadManager" customModuleProvider="target">
                                                 <rect key="frame" x="0.0" y="44.5" width="414" height="108"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="h7G-ef-KAN" id="fCW-PB-E8Q">
@@ -159,7 +158,7 @@
                                         <rect key="frame" x="0.0" y="434" width="414" height="340"/>
                                         <color key="backgroundColor" systemColor="groupTableViewBackgroundColor"/>
                                         <prototypes>
-                                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="Cell" rowHeight="108" id="nvn-2C-tfh" customClass="ProgressCell" customModule="DispatchGroup" customModuleProvider="target">
+                                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="Cell" rowHeight="108" id="nvn-2C-tfh" customClass="ProgressCell" customModule="MultiVideoDownloadManager" customModuleProvider="target">
                                                 <rect key="frame" x="0.0" y="44.5" width="414" height="108"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="nvn-2C-tfh" id="hrv-Sp-YIA">

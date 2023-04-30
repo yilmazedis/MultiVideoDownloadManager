@@ -8,51 +8,70 @@
 import Foundation
 
 class DownloadTask {
-    var progress: Int = 0
-    let identifier: String
-    let stateUpdateHandler: (DownloadTask) -> ()
+    let url: URL
+    let task: URLSessionDownloadTask
+    let name: String
     
-    var state = TaskState.pending {
-        didSet {
-            self.stateUpdateHandler(self)
-        }
-    }
-    
-    init(identifier: String,  stateUpdateHandler: @escaping (DownloadTask) -> ()) {
-        self.identifier = identifier
-        self.stateUpdateHandler = stateUpdateHandler
-    }
-    
-    func startTask(queue: DispatchQueue, group: DispatchGroup, semaphore: DispatchSemaphore, randomizeTime: Bool = true, completion: @escaping () -> Void) {
-        queue.async(group: group) { [weak self] in
-            group.enter()
-            semaphore.wait()
-            
-            completion()
-            
-//            self?.state = .inProgess(5)
-//            self?.startSleep(randomizeTime: randomizeTime)
-//            self?.state = .inProgess(20)
-//            self?.startSleep(randomizeTime: randomizeTime)
-//            self?.state = .inProgess(40)
-//            self?.startSleep(randomizeTime: randomizeTime)
-//            self?.state = .inProgess(60)
-//            self?.startSleep(randomizeTime: randomizeTime)
-//            self?.state = .inProgess(80)
-//            self?.startSleep(randomizeTime: randomizeTime)
-//            self?.state = .completed
-            group.leave()
-            semaphore.signal()
-        }
-    }
-    
-    private func startSleep(randomizeTime: Bool = true) {
-        Thread.sleep(forTimeInterval: randomizeTime ? Double(Int.random(in: 1...3)) : 1.0)
+    init(url: URL, task: URLSessionDownloadTask, name: String) {
+        self.url = url
+        self.task = task
+        self.name = name
     }
 }
 
-enum TaskState {
+protocol DownloadManagerDelegate: AnyObject {
+    func onProgress(url: URL, name: String, progress: Double)
+    func onCompletion(url: URL, name: String, location: URL?, error: Error?)
+}
+
+class DownloadManager: NSObject, URLSessionDownloadDelegate {
+    private var tasks = [URLSessionDownloadTask: DownloadTask]()
+    private lazy var session: URLSession = {
+        let config = URLSessionConfiguration.background(withIdentifier: "com.yourapp.downloadmanager")
+        return URLSession(configuration: config, delegate: self, delegateQueue: nil)
+    }()
     
+    weak var delegate: DownloadManagerDelegate?
+
+    func downloadFile(url: URL, name: String) {
+        let task = session.downloadTask(with: url)
+        let downloadTask = DownloadTask(url: url, task: task, name: name)
+        tasks[task] = downloadTask
+        task.resume()
+    }
+    
+    // MARK: - URLSessionDownloadDelegate
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
+        if let task = tasks[downloadTask] {
+            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+            let destinationURL = documentsDirectory.appendingPathComponent(task.name)
+            do {
+                try FileManager.default.moveItem(at: location, to: destinationURL)
+                delegate?.onCompletion(url: task.url, name: task.name, location: location, error: nil)
+            } catch {
+                delegate?.onCompletion(url: task.url, name: task.name, location: nil, error: error)
+            }
+            tasks.removeValue(forKey: downloadTask)
+        }
+    }
+    
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+        guard let downloadTask = tasks[downloadTask] else { return }
+        let percentage = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
+        
+        delegate?.onProgress(url: downloadTask.url, name: downloadTask.name, progress: percentage)
+    }
+    
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        guard let downloadTask = tasks[task as! URLSessionDownloadTask] else { return }
+        tasks[task as! URLSessionDownloadTask] = nil
+        
+        delegate?.onCompletion(url: downloadTask.url, name: downloadTask.name, location: nil, error: error)
+    }
+}
+
+
+enum TaskState {
     case pending
     case inProgess(Int)
     case completed
@@ -68,16 +87,6 @@ enum TaskState {
         case .completed:
             return "Completed"
         }
-    }
-}
-
-extension Array where Element == DownloadTask {
-    func downloadTaskWith(identifier: String) -> DownloadTask? {
-        return self.first { $0.identifier == identifier }
-    }
-    
-    func indexOfTaskWith(identifier: String) -> Int? {
-        return self.firstIndex { $0.identifier == identifier }
     }
 }
 
