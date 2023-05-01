@@ -7,6 +7,11 @@
 
 import Foundation
 
+protocol DownloadManagerDelegate: AnyObject {
+    func onProgress(url: URL, name: String, progress: Double)
+    func onCompletion(url: URL, name: String, location: URL?, error: Error?)
+}
+
 class DownloadTask {
     let url: URL
     let task: URLSessionDownloadTask
@@ -19,11 +24,6 @@ class DownloadTask {
     }
 }
 
-protocol DownloadManagerDelegate: AnyObject {
-    func onProgress(url: URL, name: String, progress: Double)
-    func onCompletion(url: URL, name: String, location: URL?, error: Error?)
-}
-
 class DownloadManager: NSObject, URLSessionDownloadDelegate {
     private var tasks = [URLSessionDownloadTask: DownloadTask]()
     private lazy var session: URLSession = {
@@ -32,7 +32,7 @@ class DownloadManager: NSObject, URLSessionDownloadDelegate {
     }()
     
     weak var delegate: DownloadManagerDelegate?
-
+    
     func downloadFile(url: URL, name: String) {
         let task = session.downloadTask(with: url)
         let downloadTask = DownloadTask(url: url, task: task, name: name)
@@ -42,17 +42,19 @@ class DownloadManager: NSObject, URLSessionDownloadDelegate {
     
     // MARK: - URLSessionDownloadDelegate
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-        if let task = tasks[downloadTask] {
-            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-            let destinationURL = documentsDirectory.appendingPathComponent(task.name)
-            do {
-                try FileManager.default.moveItem(at: location, to: destinationURL)
-                delegate?.onCompletion(url: task.url, name: task.name, location: location, error: nil)
-            } catch {
-                delegate?.onCompletion(url: task.url, name: task.name, location: nil, error: error)
-            }
-            tasks.removeValue(forKey: downloadTask)
+        guard let task = tasks[downloadTask] else { // something wrong with that line. Bad access
+            return
         }
+        
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let destinationURL = documentsDirectory.appendingPathComponent(task.name)
+        do {
+            try FileManager.default.moveItem(at: location, to: destinationURL)
+            delegate?.onCompletion(url: task.url, name: task.name, location: location, error: nil)
+        } catch {
+            delegate?.onCompletion(url: task.url, name: task.name, location: nil, error: error)
+        }
+        tasks.removeValue(forKey: downloadTask)
     }
     
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
@@ -63,7 +65,8 @@ class DownloadManager: NSObject, URLSessionDownloadDelegate {
     }
     
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-        guard let downloadTask = tasks[task as! URLSessionDownloadTask] else { return }
+        guard let sessionTask = task as? URLSessionDownloadTask,
+              let downloadTask = tasks[sessionTask] else { return }
         tasks[task as! URLSessionDownloadTask] = nil
         
         delegate?.onCompletion(url: downloadTask.url, name: downloadTask.name, location: nil, error: error)
