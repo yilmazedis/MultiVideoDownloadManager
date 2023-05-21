@@ -7,12 +7,24 @@
 
 import UIKit
 
+protocol ProgressCellDelegate: AnyObject {
+    func togglePause()
+}
+
 class ProgressCell: UITableViewCell {
     
     @IBOutlet weak var downloadView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var subtitleLabel: UILabel!
     @IBOutlet weak var progressBar: UIProgressView!
+    @IBOutlet weak var pauseButton: UIButton! {
+        willSet {
+            newValue.setImage(UIImage(systemName: "pause.circle"), for: .normal)
+            newValue.setImage(UIImage(systemName: "play.circle"), for: .selected)
+        }
+    }
+    
+    weak var delegate: ProgressCellDelegate?
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -41,6 +53,11 @@ class ProgressCell: UITableViewCell {
         downloadView.isHidden = false
         downloadView.image = UIImage(systemName: "photo.on.rectangle.angled")
         //downloadView.createVideoThumbnail(url: K.urls[index])
+    }
+    
+    @IBAction func pauseButtonAction(_ sender: UIButton) {
+        sender.isSelected.toggle()
+        delegate?.togglePause()
     }
 }
 

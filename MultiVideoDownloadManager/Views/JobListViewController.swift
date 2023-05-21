@@ -201,7 +201,9 @@ extension JobListViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        return tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! ProgressCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! ProgressCell
+        cell.delegate = self
+        return cell
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
@@ -212,5 +214,11 @@ extension JobListViewController: UITableViewDataSource {
         } else {
             return nil
         }
+    }
+}
+
+extension JobListViewController: ProgressCellDelegate {
+    func togglePause() {
+        
     }
 }
