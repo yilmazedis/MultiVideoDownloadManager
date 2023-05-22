@@ -25,7 +25,7 @@ class DownloadTask {
 }
 
 class DownloadManager: NSObject, URLSessionDownloadDelegate {
-    private var tasks = [URLSessionDownloadTask: DownloadTask]()
+    private var tasks = NSMapTable<URLSessionDownloadTask, DownloadTask>(keyOptions: .weakMemory, valueOptions: .strongMemory)
     private lazy var session: URLSession = {
         let config = URLSessionConfiguration.background(withIdentifier: "com.yourapp.downloadmanager")
         return URLSession(configuration: config, delegate: self, delegateQueue: nil)
@@ -36,13 +36,13 @@ class DownloadManager: NSObject, URLSessionDownloadDelegate {
     func downloadFile(url: URL, name: String) {
         let task = session.downloadTask(with: url)
         let downloadTask = DownloadTask(url: url, task: task, name: name)
-        tasks[task] = downloadTask
+        tasks.setObject(downloadTask, forKey: task)
         task.resume()
     }
     
     // MARK: - URLSessionDownloadDelegate
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-        guard let task = tasks[downloadTask] else { // something wrong with that line. Bad access
+        guard let task = tasks.object(forKey: downloadTask) else {
             return
         }
         
@@ -54,11 +54,11 @@ class DownloadManager: NSObject, URLSessionDownloadDelegate {
         } catch {
             delegate?.onCompletion(url: task.url, name: task.name, location: nil, error: error)
         }
-        tasks.removeValue(forKey: downloadTask)
+        tasks.removeObject(forKey: downloadTask)
     }
     
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
-        guard let downloadTask = tasks[downloadTask] else { return }
+        guard let downloadTask = tasks.object(forKey: downloadTask) else { return }
         let percentage = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
         
         delegate?.onProgress(url: downloadTask.url, name: downloadTask.name, progress: percentage)
@@ -66,8 +66,8 @@ class DownloadManager: NSObject, URLSessionDownloadDelegate {
     
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         guard let sessionTask = task as? URLSessionDownloadTask,
-              let downloadTask = tasks[sessionTask] else { return }
-        tasks[task as! URLSessionDownloadTask] = nil
+              let downloadTask = tasks.object(forKey: sessionTask) else { return }
+        tasks.removeObject(forKey: sessionTask)
         
         delegate?.onCompletion(url: downloadTask.url, name: downloadTask.name, location: nil, error: error)
     }
