@@ -71,6 +71,16 @@ class DownloadManager: NSObject, URLSessionDownloadDelegate {
         
         delegate?.onCompletion(url: downloadTask.url, name: downloadTask.name, location: nil, error: error)
     }
+    
+    func pauseDownload(name: String) {
+        let task = tasks.objectEnumerator()?.allObjects as? [DownloadTask] ?? []
+        task.filter({$0.name == name}).first?.task.suspend()
+    }
+
+    func resumeDownload(name: String) {
+        let task = tasks.objectEnumerator()?.allObjects as? [DownloadTask] ?? []
+        task.filter({$0.name == name}).first?.task.resume()
+    }
 }
 
 

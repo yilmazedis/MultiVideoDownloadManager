@@ -8,7 +8,8 @@
 import UIKit
 
 protocol ProgressCellDelegate: AnyObject {
-    func togglePause()
+    func resume(name: String)
+    func pause(name: String)
 }
 
 class ProgressCell: UITableViewCell {
@@ -24,6 +25,8 @@ class ProgressCell: UITableViewCell {
         }
     }
     
+    private var name = ""
+    
     weak var delegate: ProgressCellDelegate?
     
     override func awakeFromNib() {
@@ -37,6 +40,7 @@ class ProgressCell: UITableViewCell {
     
     func configure(name: String) {
         titleLabel?.text = name
+        self.name = name
     }
     
     func updateProgressBar(at progress: Double) {
@@ -56,8 +60,12 @@ class ProgressCell: UITableViewCell {
     }
     
     @IBAction func pauseButtonAction(_ sender: UIButton) {
+        if sender.isSelected {
+            delegate?.resume(name: name)
+        } else {
+            delegate?.pause(name: name)
+        }
         sender.isSelected.toggle()
-        delegate?.togglePause()
     }
 }
 

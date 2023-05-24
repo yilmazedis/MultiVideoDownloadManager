@@ -218,7 +218,11 @@ extension JobListViewController: UITableViewDataSource {
 }
 
 extension JobListViewController: ProgressCellDelegate {
-    func togglePause() {
-        
+    func pause(name: String) {
+        downloadManager.pauseDownload(name: name)
+    }
+    
+    func resume(name: String) {
+        downloadManager.resumeDownload(name: name)
     }
 }
