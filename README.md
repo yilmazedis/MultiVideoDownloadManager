@@ -1,6 +1,6 @@
 # MultiVideoDownloadManager
 
-It is not completed yet. This project still has some issues.
+It is not completed yet.
 
 |   Demo Video    |
 |:-------------------------:|
