@@ -15,11 +15,7 @@ class JobListViewController: UIViewController {
     @IBOutlet weak var jobLabel: UILabel!
     @IBOutlet weak var maxAsyncTasksSlider: UISlider!
     @IBOutlet weak var maxAsyncTasksLabel: UILabel!
-    
-    var dispatchSemaphore: DispatchSemaphore?
-    var sessionsDispatchGroup: DispatchGroup = DispatchGroup()
-    var dispatchQueue: DispatchQueue?
-    
+        
     let downloadManager = DownloadManager()
     let dispatchGroup = DispatchGroup()
     
@@ -58,16 +54,11 @@ class JobListViewController: UIViewController {
         randomizeTimeSwitch.isEnabled = false
         tasksCountSlider.isEnabled = false
         maxAsyncTasksSlider.isEnabled = false
-        
-        dispatchQueue = DispatchQueue(label: "com.alfianlosari.test", qos: .userInitiated, attributes: .concurrent)
-        dispatchSemaphore = DispatchSemaphore(value: option.maxAsyncTasks)
-        
+                
         for i in 0..<option.jobCount {
             if let url = URL(string: K.urls[i]) {
                 dispatchGroup.enter()
-                
                 addDownloadCell(tableView: downloadTableView, name: K.names[i])
-                
                 downloadManager.downloadFile(url: url, name: K.names[i])
             }
         }

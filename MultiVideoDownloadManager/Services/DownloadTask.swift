@@ -103,3 +103,34 @@ enum TaskState {
     }
 }
 
+@globalActor actor StorageActor: GlobalActor {
+    static let shared = StorageActor()
+}
+
+@StorageActor final class Cache {
+    let folder: URL
+    
+    init(folder: URL) {
+        self.folder = folder
+    }
+    
+    func get(_ key: String) async -> Data? {
+        let fileURL = folder.appendingPathComponent(key)
+        do {
+            let data = try Data(contentsOf: fileURL)
+            return data
+        } catch {
+            print("Error retrieving data from cache: \(error)")
+            return nil
+        }
+    }
+    
+    func set(data: Data, for key: String) async {
+        let fileURL = folder.appendingPathComponent(key)
+        do {
+            try data.write(to: fileURL)
+        } catch {
+            print("Error writing data to cache: \(error)")
+        }
+    }
+}
